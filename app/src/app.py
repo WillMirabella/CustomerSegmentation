@@ -102,5 +102,61 @@ def signup():
     return 'User signed up successfully!'
 
 
+
+#TWILIO AND SENDGRID IMPLEMENTATION------------------------------------------------------------------------
+
+from twilio.rest import Client
+TWILIO_ACCOUNT_SID = 'your_account_sid'
+TWILIO_AUTH_TOKEN = 'your_auth_token'
+client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+@app.route('/send-message', methods=['POST'])
+def send_message():
+    # Get recipient phone number and message from request data
+    recipient_phone = request.json.get('recipient_phone')
+    message_body = request.json.get('message_body')
+
+    try:
+        # Send message using Twilio client
+        message = client.messages.create(
+            body=message_body,
+            from_='your_twilio_phone_number',
+            to=recipient_phone
+        )
+        return jsonify({'message': 'Message sent successfully', 'message_id': message.sid}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
+
+import os
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
+
+SENDGRID_API_KEY = 'your_sendgrid_api_key'
+sg = SendGridAPIClient(SENDGRID_API_KEY)
+
+@app.route('/send-email', methods=['POST'])
+def send_email():
+    # Get recipient email, subject, and message from request data
+    recipient_email = request.json.get('recipient_email')
+    subject = request.json.get('subject')
+    message_body = request.json.get('message_body')
+
+    # Construct the email message
+    message = Mail(
+        from_email='your_sender_email@example.com',
+        to_emails=recipient_email,
+        subject=subject,
+        plain_text_content=message_body
+    )
+
+    try:
+        # Send email using SendGrid client
+        response = sg.send(message)
+        return jsonify({'message': 'Email sent successfully', 'status_code': response.status_code}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+
 if __name__ == '__main__':
     app.run(debug=True)

@@ -14,7 +14,7 @@ app = Flask(__name__)
 with app.app_context():
     app.config['MONGODB_SETTINGS'] = {
         'db': 'users',
-        'host': 'mongodb://localhost/your_database_name'
+        'host': 'mongodb+srv://williamjmirabella:softheon@cluster0.hlezfnk.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'
     }
     db = MongoEngine(app)
     fs = GridFS(db.get_db())
